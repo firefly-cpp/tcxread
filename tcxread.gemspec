@@ -15,14 +15,9 @@ Gem::Specification.new do |spec|
   spec.metadata['source_code_uri'] = 'https://github.com/firefly-cpp/tcxread'
   spec.metadata['changelog_uri'] = 'https://github.com/firefly-cpp/tcxread'
 
+  spec.files         = Dir["lib/**/*.rb"]
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency "ruby-enum", "~> 0.9.0"
+  spec.add_dependency "nokogiri", "~> 1.11"
 
-  spec.files = [
-    'LICENSE',
-    'README.md',
-    'lib/tcx.rb',
-    'lib/tcxread.rb'
-  ]
 end
