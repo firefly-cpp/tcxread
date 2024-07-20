@@ -9,8 +9,8 @@ tcxread is a Ruby package designed to simplify the process of reading and proces
 
 ## Installation 📦
 
-```
-
+```sh
+$ gem install ast-tdl
 ```
 
 ## Basic run example 🚀
@@ -18,20 +18,34 @@ tcxread is a Ruby package designed to simplify the process of reading and proces
 ```ruby
 require 'tcxread'
 
-parser = TCXRead.new('2.tcx')
-data = parser.parse
-puts data.inspect
+data = TCXRead.new('2.tcx')
+
+puts "Distance meters: #{data.total_distance_meters}, " \
+     "Time seconds: #{data.total_time_seconds}, " \
+     "Calories: #{data.total_calories}, " \
+     "Total ascent: #{data.total_ascent}, " \
+     "Total descent: #{data.total_descent}, " \
+     "Max altitude: #{data.max_altitude}, " \
+     "Average heart rate: #{data.average_heart_rate}"
 ```
 
 ## Datasets
 
 Datasets available and used in the examples on the following links: [DATASET1](http://iztok-jr-fister.eu/static/publications/Sport5.zip), [DATASET2](http://iztok-jr-fister.eu/static/css/datasets/Sport.zip), [DATASET3](https://github.com/firefly-cpp/tcx-test-files).
 
+## Further read
+
+[1] [Awesome Computational Intelligence in Sports](https://github.com/firefly-cpp/awesome-computational-intelligence-in-sports)
+
 ## Related packages/frameworks
 
 [1] [tcxreader: Python reader/parser for Garmin's TCX file format.](https://github.com/alenrajsp/tcxreader)
 
 [2] [sport-activities-features: A minimalistic toolbox for extracting features from sports activity files written in Python](https://github.com/firefly-cpp/sport-activities-features)
+
+[3] [TCXReader.jl: Julia package designed for parsing TCX files](https://github.com/firefly-cpp/TCXReader.jl)
+
+[4] [TCXWriter: A Tiny Library for writing/creating TCX files on Arduino](https://github.com/firefly-cpp/tcxwriter)
 
 ## License
 

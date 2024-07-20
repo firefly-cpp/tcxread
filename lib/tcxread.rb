@@ -1,23 +1,44 @@
 require "nokogiri"
 
 # TCXRead is a class that parses TCX (Training Center XML) files to extract
-# workout data such as activities, laps, tracks, trackpoints and integral metrics.
+# workout data such as activities, laps, tracks, trackpoints, and integral metrics.
 class TCXRead
+  attr_reader :total_distance_meters, :total_time_seconds, :total_calories,
+              :total_ascent, :total_descent, :max_altitude, :average_heart_rate
+
   # Initializes the TCXRead with the path to the TCX file.
   #
   # @param file_path [String] the path to the TCX file.
   def initialize(file_path)
     @file_path = file_path
     @doc = Nokogiri::XML(File.open(file_path))
+
+    # Init the properties
+    @total_distance_meters = 0
+    @total_time_seconds = 0
+    @total_calories = 0
+    @total_ascent = 0
+    @total_descent = 0
+    @max_altitude = 0
+    @average_heart_rate = 0
+
+    parse
   end
 
   # Parses the TCX file and extracts data.
   #
   # @return [Hash] a hash containing the parsed activities.
   def parse
-    {
-      activities: parse_activities
-    }
+    activities = parse_activities
+    if activities.any?
+      @total_time_seconds = activities.sum { |activity| activity[:total_time_seconds] }
+      @total_distance_meters = activities.sum { |activity| activity[:total_distance_meters] }
+      @total_calories = activities.sum { |activity| activity[:total_calories] }
+      @total_ascent, @total_descent, @max_altitude = calculate_ascent_descent_and_max_altitude_from_activities(activities)
+      @average_heart_rate = calculate_average_heart_rate_from_activities(activities)
+    end
+
+    { activities: activities }
   end
 
   private
@@ -128,7 +149,6 @@ class TCXRead
         altitude = trackpoint[:altitude_meters]
         max_altitude = altitude if altitude > max_altitude
 
-        # can be improved
         if previous_altitude
           altitude_change = altitude - previous_altitude
           if altitude_change > 0
@@ -140,6 +160,24 @@ class TCXRead
 
         previous_altitude = altitude
       end
+    end
+
+    [total_ascent, total_descent, max_altitude]
+  end
+
+  # Calculates the total ascent, total descent, and maximum altitude from the activities.
+  #
+  # @param activities [Array<Hash>] an array of activity hashes.
+  # @return [Array<Float>] an array containing total ascent, total descent, and maximum altitude.
+  def calculate_ascent_descent_and_max_altitude_from_activities(activities)
+    total_ascent = 0.0
+    total_descent = 0.0
+    max_altitude = -Float::INFINITY
+
+    activities.each do |activity|
+      total_ascent += activity[:total_ascent]
+      total_descent += activity[:total_descent]
+      max_altitude = activity[:max_altitude] if activity[:max_altitude] > max_altitude
     end
 
     [total_ascent, total_descent, max_altitude]
@@ -159,6 +197,29 @@ class TCXRead
         if heart_rate > 0
           total_heart_rate += heart_rate
           heart_rate_count += 1
+        end
+      end
+    end
+
+    heart_rate_count > 0 ? total_heart_rate.to_f / heart_rate_count : 0.0
+  end
+
+  # Calculates the average heart rate from the activities.
+  #
+  # @param activities [Array<Hash>] an array of activity hashes.
+  # @return [Float] the average heart rate.
+  def calculate_average_heart_rate_from_activities(activities)
+    total_heart_rate = 0
+    heart_rate_count = 0
+
+    activities.each do |activity|
+      activity[:laps].each do |lap|
+        lap[:tracks].flatten.each do |trackpoint|
+          heart_rate = trackpoint[:heart_rate]
+          if heart_rate > 0
+            total_heart_rate += heart_rate
+            heart_rate_count += 1
+          end
         end
       end
     end
