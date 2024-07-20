@@ -1,7 +1,7 @@
 # tcxread -- A parser for TCX files written in Ruby
 
 [![GitHub license](https://img.shields.io/github/license/firefly-cpp/tcxread.svg)](https://github.com/firefly-cpp/tcxread/blob/master/LICENSE)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/firefly-cpp/tcxread.jl.svg)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/firefly-cpp/tcxread.svg)
 
 ## About 📋
 
@@ -10,7 +10,7 @@ tcxread is a Ruby package designed to simplify the process of reading and proces
 ## Installation 📦
 
 ```sh
-$ gem install ast-tdl
+$ gem install tcxread
 ```
 
 ## Basic run example 🚀
