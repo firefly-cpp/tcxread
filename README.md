@@ -3,10 +3,17 @@
 </h1>
 
 <p align="center">
+     <a href="https://badge.fury.io/rb/tcxread">
+          <img alt="Gem Version" src="https://badge.fury.io/rb/tcxread.svg">
+     </a>
      <a href="https://github.com/firefly-cpp/tcxread/blob/master/LICENSE">
           <img alt="License" src="https://img.shields.io/github/license/firefly-cpp/tcxread.svg">
      </a>
+     <a href=https://repology.org/project/ruby:tcxread/versions>
+          <img alt="Packaging status" src="https://repology.org/badge/tiny-repos/ruby:tcxread.svg">
+     </a>
      <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/firefly-cpp/tcxread.svg">
+     <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/firefly-cpp/tcxread">
 </p>
 
 <p align="center">
