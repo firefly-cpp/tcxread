@@ -1,19 +1,32 @@
-# tcxread -- A parser for TCX files written in Ruby
+<h1 align="center">
+     tcxread -- A parser for TCX files written in Ruby
+</h1>
 
-[![GitHub license](https://img.shields.io/github/license/firefly-cpp/tcxread.svg)](https://github.com/firefly-cpp/tcxread/blob/master/LICENSE)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/firefly-cpp/tcxread.svg)
+<p align="center">
+     <a href="https://github.com/firefly-cpp/tcxread/blob/master/LICENSE">
+          <img alt="License" src="https://img.shields.io/github/license/firefly-cpp/tcxread.svg">
+     </a>
+     <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/firefly-cpp/tcxread.svg">
+</p>
 
-## About 📋
+<p align="center">
+     <a href="#-installation">📦 Installation</a> •
+     <a href="#-basic-run-example">🚀 Basic run example</a> •
+     <a href="#-datasets">💾 Datasets</a> •
+     <a href="#-further-read">📖 Further read</a> •
+     <a href="#-related-packagesframeworks">🔗 Related packages/frameworks</a> •
+     <a href="#-license">🔑 License</a>
+</p>
 
 tcxread is a Ruby package designed to simplify the process of reading and processing .tcx files, commonly used by Garmin devices and other GPS-enabled fitness devices to store workout data.
 
-## Installation 📦
+## 📦 Installation
 
 ```sh
 $ gem install tcxread
 ```
 
-## Basic run example 🚀
+## 🚀 Basic run example
 
 ```ruby
 require 'tcxread'
@@ -29,15 +42,15 @@ puts "Distance meters: #{data.total_distance_meters}, " \
      "Average heart rate: #{data.average_heart_rate}"
 ```
 
-## Datasets
+## 💾 Datasets
 
 Datasets available and used in the examples on the following links: [DATASET1](http://iztok-jr-fister.eu/static/publications/Sport5.zip), [DATASET2](http://iztok-jr-fister.eu/static/css/datasets/Sport.zip), [DATASET3](https://github.com/firefly-cpp/tcx-test-files).
 
-## Further read
+## 📖 Further read
 
 [1] [Awesome Computational Intelligence in Sports](https://github.com/firefly-cpp/awesome-computational-intelligence-in-sports)
 
-## Related packages/frameworks
+## 🔗 Related packages/frameworks
 
 [1] [tcxreader: Python reader/parser for Garmin's TCX file format.](https://github.com/alenrajsp/tcxreader)
 
@@ -47,7 +60,7 @@ Datasets available and used in the examples on the following links: [DATASET1](h
 
 [4] [TCXWriter: A Tiny Library for writing/creating TCX files on Arduino](https://github.com/firefly-cpp/tcxwriter)
 
-## License
+## 🔑 License
 
 This package is distributed under the MIT License. This license can be found online at <http://www.opensource.org/licenses/MIT>.
 
