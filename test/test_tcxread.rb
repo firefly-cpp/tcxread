@@ -9,6 +9,10 @@ class TCXReadTest < Minitest::Test
 
     # tests for file 15.tcx
     @data2 = TCXRead.new('test/15.tcx')
+
+    # tests for TCX file where watts exist
+    @data3 = TCXRead.new('test/23.tcx')
+
   end
 
   def test_total_calories
@@ -30,5 +34,15 @@ class TCXReadTest < Minitest::Test
   def test_total_ascent
       assert_equal @data1.total_ascent, 452.5999946594238
       assert_equal @data2.total_ascent, 1404.400026500225
+  end
+
+  def test_NA_watts
+    assert_equal @data1.average_watts, 'NA'
+    assert_equal @data1.max_watts, 'NA'
+  end
+
+  def test_watts
+    assert_equal @data3.average_watts, 240.05065154973127
+    assert_equal @data3.max_watts, 587
   end
 end
