@@ -4,16 +4,14 @@ require "nokogiri"
 # workout data such as activities, laps, tracks, trackpoints, and integral metrics.
 class TCXRead
   attr_reader :total_distance_meters, :total_time_seconds, :total_calories,
-              :total_ascent, :total_descent, :max_altitude, :average_heart_rate
+              :total_ascent, :total_descent, :max_altitude, :average_heart_rate,
+              :max_watts, :average_watts
 
-  # Initializes the TCXRead with the path to the TCX file.
-  #
-  # @param file_path [String] the path to the TCX file.
   def initialize(file_path)
     @file_path = file_path
     @doc = Nokogiri::XML(File.open(file_path))
+    @doc.root.add_namespace_definition('ns3', 'http://www.garmin.com/xmlschemas/ActivityExtension/v2')
 
-    # Init the properties
     @total_distance_meters = 0
     @total_time_seconds = 0
     @total_calories = 0
@@ -21,6 +19,9 @@ class TCXRead
     @total_descent = 0
     @max_altitude = 0
     @average_heart_rate = 0
+    # use NA if no watts exist in the TCX file
+    @max_watts = 'NA'
+    @average_watts = 'NA'
 
     parse
   end
@@ -36,6 +37,7 @@ class TCXRead
       @total_calories = activities.sum { |activity| activity[:total_calories] }
       @total_ascent, @total_descent, @max_altitude = calculate_ascent_descent_and_max_altitude_from_activities(activities)
       @average_heart_rate = calculate_average_heart_rate_from_activities(activities)
+      @max_watts, @average_watts = calculate_watts_from_activities(activities)
     end
 
     { activities: activities }
@@ -112,7 +114,8 @@ class TCXRead
           distance_meters: trackpoint.xpath('xmlns:DistanceMeters').text.to_f,
           heart_rate: trackpoint.xpath('xmlns:HeartRateBpm/xmlns:Value').text.to_i,
           cadence: trackpoint.xpath('xmlns:Cadence').text.to_i,
-          sensor_state: trackpoint.xpath('xmlns:SensorState').text
+          sensor_state: trackpoint.xpath('xmlns:SensorState').text,
+          watts: trackpoint.xpath('xmlns:Extensions/ns3:TPX/ns3:Watts').text.to_f
         }
       end
       tracks << trackpoints
@@ -164,6 +167,7 @@ class TCXRead
 
     [total_ascent, total_descent, max_altitude]
   end
+
 
   # Calculates the total ascent, total descent, and maximum altitude from the activities.
   #
@@ -225,5 +229,38 @@ class TCXRead
     end
 
     heart_rate_count > 0 ? total_heart_rate.to_f / heart_rate_count : 0.0
+  end
+
+  # Calculates the maximum and average watts from the activities.
+  #
+  # @param activities [Array<Hash>] an array of activity hashes.
+  # @return [Array<Float, Float>] an array containing maximum watts and average watts. Returns 'NA' for both if no watts data is available.
+  def calculate_watts_from_activities(activities)
+    max_watts = 0
+    total_watts = 0
+    watts_count = 0
+
+    activities.each do |activity|
+      activity[:laps].each do |lap|
+        lap[:tracks].flatten.each do |trackpoint|
+          watts = trackpoint[:watts]
+          if watts > 0
+            total_watts += watts
+            watts_count += 1
+            max_watts = watts if watts > max_watts
+          end
+        end
+      end
+    end
+
+    if watts_count > 0
+      average_watts = total_watts.to_f / watts_count
+      max_watts = max_watts
+    else
+      average_watts = 'NA'
+      max_watts = 'NA'
+    end
+
+    [max_watts, average_watts]
   end
 end
