@@ -38,7 +38,7 @@ $ gem install tcxread
 ```ruby
 require 'tcxread'
 
-data = TCXRead.new('2.tcx')
+data = TCXRead.new('23.tcx')
 
 puts "Distance meters: #{data.total_distance_meters}, " \
      "Time seconds: #{data.total_time_seconds}, " \
@@ -46,7 +46,9 @@ puts "Distance meters: #{data.total_distance_meters}, " \
      "Total ascent: #{data.total_ascent}, " \
      "Total descent: #{data.total_descent}, " \
      "Max altitude: #{data.max_altitude}, " \
-     "Average heart rate: #{data.average_heart_rate}"
+     "Average heart rate: #{data.average_heart_rate}, " \
+     "Average watts: #{data.average_watts}, " \
+     "Max watts: #{data.max_watts}"
 ```
 
 ## 💾 Datasets
