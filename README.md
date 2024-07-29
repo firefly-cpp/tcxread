@@ -48,7 +48,8 @@ puts "Distance meters: #{data.total_distance_meters}, " \
      "Max altitude: #{data.max_altitude}, " \
      "Average heart rate: #{data.average_heart_rate}, " \
      "Average watts: #{data.average_watts}, " \
-     "Max watts: #{data.max_watts}"
+     "Max watts: #{data.max_watts}, " \
+     "Average cadence: #{data.average_cadence}"
 ```
 
 ## 💾 Datasets
