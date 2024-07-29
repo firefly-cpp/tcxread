@@ -5,7 +5,7 @@ require "nokogiri"
 class TCXRead
   attr_reader :total_distance_meters, :total_time_seconds, :total_calories,
               :total_ascent, :total_descent, :max_altitude, :average_heart_rate,
-              :max_watts, :average_watts
+              :max_watts, :average_watts, :average_cadence
 
   def initialize(file_path)
     @file_path = file_path
@@ -22,6 +22,7 @@ class TCXRead
     # use NA if no watts exist in the TCX file
     @max_watts = 'NA'
     @average_watts = 'NA'
+    @average_cadence = 0
 
     parse
   end
@@ -38,6 +39,7 @@ class TCXRead
       @total_ascent, @total_descent, @max_altitude = calculate_ascent_descent_and_max_altitude_from_activities(activities)
       @average_heart_rate = calculate_average_heart_rate_from_activities(activities)
       @max_watts, @average_watts = calculate_watts_from_activities(activities)
+      @average_cadence = calculate_average_cadence_from_activities(activities)
     end
 
     { activities: activities }
@@ -168,7 +170,6 @@ class TCXRead
     [total_ascent, total_descent, max_altitude]
   end
 
-
   # Calculates the total ascent, total descent, and maximum altitude from the activities.
   #
   # @param activities [Array<Hash>] an array of activity hashes.
@@ -262,5 +263,28 @@ class TCXRead
     end
 
     [max_watts, average_watts]
+  end
+
+  # Calculates the average cadence from the activities.
+  #
+  # @param activities [Array<Hash>] an array of activity hashes.
+  # @return [Float] the average cadence.
+  def calculate_average_cadence_from_activities(activities)
+    total_cadence = 0
+    cadence_count = 0
+
+    activities.each do |activity|
+      activity[:laps].each do |lap|
+        lap[:tracks].flatten.each do |trackpoint|
+          cadence = trackpoint[:cadence]
+          if cadence > 0
+            total_cadence += cadence
+            cadence_count += 1
+          end
+        end
+      end
+    end
+
+    cadence_count > 0 ? total_cadence.to_f / cadence_count : 0.0
   end
 end
