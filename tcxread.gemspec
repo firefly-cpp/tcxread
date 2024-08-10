@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.metadata['source_code_uri'] = 'https://github.com/firefly-cpp/tcxread'
   spec.metadata['changelog_uri'] = 'https://github.com/firefly-cpp/tcxread'
 
-  spec.files         = Dir["lib/**/*.rb"]
+  spec.files         = Dir["lib/**/*.rb"] + ["README.md", "LICENSE"]
   spec.require_paths = ['lib']
 
   spec.add_dependency "nokogiri", "~> 1.11"
