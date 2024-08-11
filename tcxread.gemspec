@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = 'tcxread'
-  spec.version       = '0.1.2'
+  spec.version       = '0.1.3'
   spec.license       = 'MIT'
   spec.authors       = %w[firefly-cpp]
   spec.email         = ['iztok@iztok-jr-fister.eu']
