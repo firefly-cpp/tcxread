@@ -49,7 +49,11 @@ puts "Distance meters: #{data.total_distance_meters}, " \
      "Average heart rate: #{data.average_heart_rate}, " \
      "Average watts: #{data.average_watts}, " \
      "Max watts: #{data.max_watts}, " \
-     "Average cadence: #{data.average_cadence}"
+     "Average speed: #{data.average_speed_all}, " \
+     "Average speed (moving): #{data.average_speed_moving}, " \
+     "Average cadence (moving): #{data.average_cadence_biking}, " \
+     "Average cadence: #{data.average_cadence_all}"
+
 ```
 
 ## 💾 Datasets
