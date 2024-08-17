@@ -1,11 +1,10 @@
 require "nokogiri"
 
-# TCXRead is a class that parses TCX (Training Center XML) files to extract
-# workout data such as activities, laps, tracks, trackpoints, and integral metrics.
 class TCXRead
   attr_reader :total_distance_meters, :total_time_seconds, :total_calories,
               :total_ascent, :total_descent, :max_altitude, :average_heart_rate,
-              :max_watts, :average_watts, :average_cadence_all, :average_cadence_riding
+              :max_watts, :average_watts, :average_cadence_all, :average_cadence_biking,
+              :average_speed_all, :average_speed_moving
 
   def initialize(file_path)
     @file_path = file_path
@@ -19,18 +18,16 @@ class TCXRead
     @total_descent = 0
     @max_altitude = 0
     @average_heart_rate = 0
-    # use NA if no watts exist in the TCX file
     @max_watts = 'NA'
     @average_watts = 'NA'
     @average_cadence_all = 0
-    @average_cadence_riding = 0
+    @average_cadence_biking = 0
+    @average_speed_all = 0
+    @average_speed_moving = 0
 
     parse
   end
 
-  # Parses the TCX file and extracts data.
-  #
-  # @return [Hash] a hash containing the parsed activities.
   def parse
     activities = parse_activities
     if activities.any?
@@ -42,7 +39,10 @@ class TCXRead
       @max_watts, @average_watts = calculate_watts_from_activities(activities)
       cadence_results = calculate_average_cadence_from_activities(activities)
       @average_cadence_all = cadence_results[:average_cadence_all]
-      @average_cadence_riding = cadence_results[:average_cadence_riding]
+      @average_cadence_biking = cadence_results[:average_cadence_biking]
+      speed_results = calculate_average_speed_from_activities(activities)
+      @average_speed_all = speed_results[:average_speed_all]
+      @average_speed_moving = speed_results[:average_speed_moving]
     end
 
     { activities: activities }
@@ -50,9 +50,6 @@ class TCXRead
 
   private
 
-  # Parses the activities from the TCX file.
-  #
-  # @return [Array<Hash>] an array of hashes, each representing an activity.
   def parse_activities
     activities = []
     @doc.xpath('//xmlns:Activities/xmlns:Activity').each do |activity|
@@ -79,10 +76,6 @@ class TCXRead
     activities
   end
 
-  # Parses the laps for a given activity.
-  #
-  # @param activity [Nokogiri::XML::Element] the activity element from the TCX file.
-  # @return [Array<Hash>] an array of hashes, each representing a lap.
   def parse_laps(activity)
     laps = []
     activity.xpath('xmlns:Lap').each do |lap|
@@ -103,10 +96,6 @@ class TCXRead
     laps
   end
 
-  # Parses the tracks for a given lap.
-  #
-  # @param lap [Nokogiri::XML::Element] the lap element from the TCX file.
-  # @return [Array<Array<Hash>>] an array of arrays, each representing a track containing trackpoints.
   def parse_tracks(lap)
     tracks = []
     lap.xpath('xmlns:Track').each do |track|
@@ -128,10 +117,6 @@ class TCXRead
     tracks
   end
 
-  # Parses the position for a given trackpoint.
-  #
-  # @param trackpoint [Nokogiri::XML::Element] the trackpoint element from the TCX file.
-  # @return [Hash, nil] a hash representing the position (latitude and longitude) or nil if no position is available.
   def parse_position(trackpoint)
     position = trackpoint.at_xpath('xmlns:Position')
     return nil unless position
@@ -142,10 +127,6 @@ class TCXRead
     }
   end
 
-  # Calculates the total ascent, total descent, and maximum altitude from the laps.
-  #
-  # @param laps [Array<Hash>] an array of lap hashes.
-  # @return [Array<Float>] an array containing total ascent, total descent, and maximum altitude.
   def calculate_ascent_descent_and_max_altitude(laps)
     total_ascent = 0.0
     total_descent = 0.0
@@ -173,10 +154,6 @@ class TCXRead
     [total_ascent, total_descent, max_altitude]
   end
 
-  # Calculates the total ascent, total descent, and maximum altitude from the activities.
-  #
-  # @param activities [Array<Hash>] an array of activity hashes.
-  # @return [Array<Float>] an array containing total ascent, total descent, and maximum altitude.
   def calculate_ascent_descent_and_max_altitude_from_activities(activities)
     total_ascent = 0.0
     total_descent = 0.0
@@ -191,10 +168,6 @@ class TCXRead
     [total_ascent, total_descent, max_altitude]
   end
 
-  # Calculates the average heart rate from the laps.
-  #
-  # @param laps [Array<Hash>] an array of lap hashes.
-  # @return [Float] the average heart rate.
   def calculate_average_heart_rate(laps)
     total_heart_rate = 0
     heart_rate_count = 0
@@ -212,10 +185,6 @@ class TCXRead
     heart_rate_count > 0 ? total_heart_rate.to_f / heart_rate_count : 0.0
   end
 
-  # Calculates the average heart rate from the activities.
-  #
-  # @param activities [Array<Hash>] an array of activity hashes.
-  # @return [Float] the average heart rate.
   def calculate_average_heart_rate_from_activities(activities)
     total_heart_rate = 0
     heart_rate_count = 0
@@ -235,10 +204,6 @@ class TCXRead
     heart_rate_count > 0 ? total_heart_rate.to_f / heart_rate_count : 0.0
   end
 
-  # Calculates the maximum and average watts from the activities.
-  #
-  # @param activities [Array<Hash>] an array of activity hashes.
-  # @return [Array<Float, Float>] an array containing maximum watts and average watts. Returns 'NA' for both if no watts data is available.
   def calculate_watts_from_activities(activities)
     max_watts = 0
     total_watts = 0
@@ -268,15 +233,11 @@ class TCXRead
     [max_watts, average_watts]
   end
 
-  # Calculates the average cadence from the activities.
-  #
-  # @param activities [Array<Hash>] an array of activity hashes.
-  # @return [Hash] a hash containing average cadence including zeros and average cadence while biking.
   def calculate_average_cadence_from_activities(activities)
     total_cadence_all = 0
-    total_cadence_riding = 0
+    total_cadence_biking = 0
     cadence_count_all = 0
-    cadence_count_riding = 0
+    cadence_count_biking = 0
 
     activities.each do |activity|
       activity[:laps].each do |lap|
@@ -286,19 +247,58 @@ class TCXRead
           cadence_count_all += 1
 
           if cadence > 0
-            total_cadence_riding += cadence
-            cadence_count_riding += 1
+            total_cadence_biking += cadence
+            cadence_count_biking += 1
           end
         end
       end
     end
 
     average_cadence_all = cadence_count_all > 0 ? total_cadence_all.to_f / cadence_count_all : 0.0
-    average_cadence_riding = cadence_count_riding > 0 ? total_cadence_riding.to_f / cadence_count_riding : 0.0
+    average_cadence_biking = cadence_count_biking > 0 ? total_cadence_biking.to_f / cadence_count_biking : 0.0
 
     {
       average_cadence_all: average_cadence_all,
-      average_cadence_riding: average_cadence_riding
+      average_cadence_biking: average_cadence_biking
+    }
+  end
+
+  # Calculates the average speed from the activities.
+  #
+  # @param activities [Array<Hash>] an array of activity hashes.
+  # @return [Hash] a hash containing average speed including zeros and average speed while moving.
+  def calculate_average_speed_from_activities(activities)
+    total_speed_all = 0
+    total_speed_moving = 0
+    speed_count_all = 0
+    speed_count_moving = 0
+
+    activities.each do |activity|
+      activity[:laps].each do |lap|
+        lap[:tracks].flatten.each do |trackpoint|
+          distance = trackpoint[:distance_meters]
+          time_seconds = lap[:total_time_seconds]
+          speed = distance / time_seconds if time_seconds > 0
+
+          if speed
+            total_speed_all += speed
+            speed_count_all += 1
+
+            if speed > 0
+              total_speed_moving += speed
+              speed_count_moving += 1
+            end
+          end
+        end
+      end
+    end
+
+    average_speed_all = speed_count_all > 0 ? total_speed_all.to_f / speed_count_all : 0.0
+    average_speed_moving = speed_count_moving > 0 ? total_speed_moving.to_f / speed_count_moving : 0.0
+
+    {
+      average_speed_all: average_speed_all,
+      average_speed_moving: average_speed_moving
     }
   end
 end
