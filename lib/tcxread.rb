@@ -5,7 +5,7 @@ require "nokogiri"
 class TCXRead
   attr_reader :total_distance_meters, :total_time_seconds, :total_calories,
               :total_ascent, :total_descent, :max_altitude, :average_heart_rate,
-              :max_watts, :average_watts, :average_cadence
+              :max_watts, :average_watts, :average_cadence_all, :average_cadence_riding
 
   def initialize(file_path)
     @file_path = file_path
@@ -22,7 +22,8 @@ class TCXRead
     # use NA if no watts exist in the TCX file
     @max_watts = 'NA'
     @average_watts = 'NA'
-    @average_cadence = 0
+    @average_cadence_all = 0
+    @average_cadence_riding = 0
 
     parse
   end
@@ -39,7 +40,9 @@ class TCXRead
       @total_ascent, @total_descent, @max_altitude = calculate_ascent_descent_and_max_altitude_from_activities(activities)
       @average_heart_rate = calculate_average_heart_rate_from_activities(activities)
       @max_watts, @average_watts = calculate_watts_from_activities(activities)
-      @average_cadence = calculate_average_cadence_from_activities(activities)
+      cadence_results = calculate_average_cadence_from_activities(activities)
+      @average_cadence_all = cadence_results[:average_cadence_all]
+      @average_cadence_riding = cadence_results[:average_cadence_riding]
     end
 
     { activities: activities }
@@ -268,23 +271,34 @@ class TCXRead
   # Calculates the average cadence from the activities.
   #
   # @param activities [Array<Hash>] an array of activity hashes.
-  # @return [Float] the average cadence.
+  # @return [Hash] a hash containing average cadence including zeros and average cadence while biking.
   def calculate_average_cadence_from_activities(activities)
-    total_cadence = 0
-    cadence_count = 0
+    total_cadence_all = 0
+    total_cadence_riding = 0
+    cadence_count_all = 0
+    cadence_count_riding = 0
 
     activities.each do |activity|
       activity[:laps].each do |lap|
         lap[:tracks].flatten.each do |trackpoint|
           cadence = trackpoint[:cadence]
+          total_cadence_all += cadence
+          cadence_count_all += 1
+
           if cadence > 0
-            total_cadence += cadence
-            cadence_count += 1
+            total_cadence_riding += cadence
+            cadence_count_riding += 1
           end
         end
       end
     end
 
-    cadence_count > 0 ? total_cadence.to_f / cadence_count : 0.0
+    average_cadence_all = cadence_count_all > 0 ? total_cadence_all.to_f / cadence_count_all : 0.0
+    average_cadence_riding = cadence_count_riding > 0 ? total_cadence_riding.to_f / cadence_count_riding : 0.0
+
+    {
+      average_cadence_all: average_cadence_all,
+      average_cadence_riding: average_cadence_riding
+    }
   end
 end
