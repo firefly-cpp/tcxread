@@ -109,7 +109,8 @@ class TCXRead
           heart_rate: trackpoint.xpath('xmlns:HeartRateBpm/xmlns:Value').text.to_i,
           cadence: trackpoint.xpath('xmlns:Cadence').text.to_i,
           sensor_state: trackpoint.xpath('xmlns:SensorState').text,
-          watts: trackpoint.xpath('xmlns:Extensions/ns3:TPX/ns3:Watts').text.to_f
+          watts: trackpoint.xpath('xmlns:Extensions/ns3:TPX/ns3:Watts').text.to_f,
+          speed: trackpoint.xpath('xmlns:Extensions/ns3:TPX/ns3:Speed').text.to_f
         }
       end
       tracks << trackpoints
@@ -276,9 +277,7 @@ class TCXRead
     activities.each do |activity|
       activity[:laps].each do |lap|
         lap[:tracks].flatten.each do |trackpoint|
-          distance = trackpoint[:distance_meters]
-          time_seconds = lap[:total_time_seconds]
-          speed = distance / time_seconds if time_seconds > 0
+          speed = trackpoint[:speed]
 
           if speed
             total_speed_all += speed
