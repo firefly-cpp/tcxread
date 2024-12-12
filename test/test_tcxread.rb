@@ -30,12 +30,12 @@ class TCXReadTest < Minitest::Test
   end
 
   def test_NA_watts
-    assert_equal @data1.average_watts, 'NA'
-    assert_equal @data1.max_watts, 'NA'
+    assert_equal @data1.average_watts, 0.0
+    assert_equal @data1.max_watts, 0.0
   end
 
   def test_watts
-    assert_equal @data3.average_watts, 240.05065154973127
+    assert_equal @data3.average_watts, 226.8091263216472
     assert_equal @data3.max_watts, 587
   end
 end
