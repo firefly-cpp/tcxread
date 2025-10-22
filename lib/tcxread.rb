@@ -43,10 +43,9 @@ class TCXRead
               :average_speed_all, :average_speed_moving
 
   # Initializes the TCXRead object and parses the TCX file.
-  # @param file_path [String] The file path of the TCX file to process.
-  def initialize(file_path)
-    @file_path = file_path
-    @doc = Nokogiri::XML(File.open(file_path))
+  # @param file_path_or_xml [String] The file path of the TCX file to process or a Nokogiri::XML document.
+  def initialize(file_path_or_xml)
+    @doc = file_path_or_xml.is_a?(Nokogiri::XML::Document) ? file_path_or_xml : Nokogiri::XML(File.open(file_path_or_xml))
     @doc.root.add_namespace_definition('ns3', 'http://www.garmin.com/xmlschemas/ActivityExtension/v2')
 
     @total_distance_meters = 0
@@ -65,6 +64,20 @@ class TCXRead
 
     parse
   end
+
+  # Returns a TCXRead object from a File or file path.
+  # @param file_or_path [String, File] The file path or a Fule of the TCX file to process.
+  def self.load_file(file_or_path)
+    TCXRead.new(Nokogiri::XML(file_or_path.is_a?(File) ? file_or_path : File.open(file_or_path)))
+  end
+
+  # Returns a TCXRead object from raw TCX data.
+  # @param data [String] TCX data to load.
+  def self.parse(data)
+    TCXRead.new(Nokogiri::XML(data))
+  end
+
+  private
 
   # Parses the TCX file and computes metrics for all activities.
   def parse
@@ -87,8 +100,6 @@ class TCXRead
     @average_speed_all = speed_results[:average_speed_all]
     @average_speed_moving = speed_results[:average_speed_moving]
   end
-
-  private
 
   # Parses activities from the TCX file.
   # @return [Array<Hash>] An array of parsed activity data.
