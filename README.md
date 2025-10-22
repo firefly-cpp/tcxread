@@ -38,7 +38,7 @@ $ gem install tcxread
 ```ruby
 require 'tcxread'
 
-data = TCXRead.new('23.tcx')
+data = TCXRead.load_file('23.tcx')
 
 puts "Distance meters: #{data.total_distance_meters}, " \
      "Time seconds: #{data.total_time_seconds}, " \
@@ -55,6 +55,8 @@ puts "Distance meters: #{data.total_distance_meters}, " \
      "Average cadence: #{data.average_cadence_all}"
 
 ```
+
+Use `TCXRead.parse(data)` to parse raw TCX data.
 
 ## 💾 Datasets
 
