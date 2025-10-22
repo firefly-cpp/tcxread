@@ -1,10 +1,6 @@
 name: Ruby
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -17,7 +13,6 @@ jobs:
         uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
         with:
           ruby-version: '3.1'
-      - name: Install dependencies
-        run: bundle install
+          bundler-cache: true
       - name: Run tests
-        run: ruby test/test_tcxread.rb
+        run: bundle exec rake test
